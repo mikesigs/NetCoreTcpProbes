@@ -1,0 +1,11 @@
+version: '3.4'
+
+services:
+  netcoretcpprobes:
+    image: ${DOCKER_REGISTRY-}mikesigs/netcoretcpprobes
+    ports:
+      - "13000:13000"
+      - "13001:13001"
+    build:
+      context: .
+      dockerfile: NetCoreTcpProbes/Dockerfile
