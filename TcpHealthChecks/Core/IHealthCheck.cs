@@ -1,4 +1,4 @@
-﻿namespace TcpHealthChecks
+﻿namespace TcpHealthChecks.Core
 {
     public interface IHealthCheck
     {

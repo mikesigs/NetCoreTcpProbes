@@ -1,16 +1,12 @@
-# Default values for NetCoreTcpProbes.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
-
 replicaCount: 1
 
 image:
-  repository: mikesigs/netcoretcpprobes
+  repository: mikesigs/tcp-health-checks-example
   tag: latest
   pullPolicy: Always
 
 nameOverride: ""
-fullnameOverride: ""
+fullnameOverride: "tcp-health-checks-example"
 
 service:
   type: ClusterIP
@@ -22,8 +18,8 @@ ingress:
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
   hosts:
-    - host: chart-example.local
-      paths: []
+  #  - host: chart-example.local
+  #    paths: []
 
   tls: []
   #  - secretName: chart-example-tls
