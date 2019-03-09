@@ -1,11 +1,21 @@
 version: '3.4'
 
 services:
-  netcoretcpprobes:
-    image: ${DOCKER_REGISTRY-}mikesigs/tcp-health-checks-example
-    ports:
-      - "13000:13000"
-      - "13001:13001"
+  simpleexamplewithdefaults:
+    image: ${DOCKER_REGISTRY-}simpleexamplewithdefaultscustomhealthchecksexample
+    ports: 
+    - "13000:13000"
+    - "13001:13001"
     build:
       context: .
-      dockerfile: Example/Dockerfile
+      dockerfile: samples/SimpleExampleWithDefaults/Dockerfile
+
+  customhealthchecksexample:
+    image: ${DOCKER_REGISTRY-}customhealthchecksexample
+    ports: 
+    - "13002:13002"
+    - "13003:13003"
+    build:
+      context: .
+      dockerfile: samples/CustomHealthChecksExample/Dockerfile
+
