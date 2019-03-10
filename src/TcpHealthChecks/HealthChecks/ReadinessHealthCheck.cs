@@ -3,6 +3,10 @@ using TcpHealthChecks.Core;
 
 namespace TcpHealthChecks.HealthChecks
 {
+    /// <summary>
+    /// The default Readiness Health Check.
+    /// Is healthy after ApplicationStarted, and unhealthy upon ApplicationStopping or ApplicationStopped.
+    /// </summary>
     public class ReadinessHealthCheck : IHealthCheck
     {
         private bool _isReady;

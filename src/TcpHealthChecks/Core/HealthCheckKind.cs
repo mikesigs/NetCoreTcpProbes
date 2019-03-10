@@ -2,7 +2,7 @@
 {
     public enum HealthCheckKind
     {
-        Readiness,
+        Readiness = 1,
         Liveness
     }
 }

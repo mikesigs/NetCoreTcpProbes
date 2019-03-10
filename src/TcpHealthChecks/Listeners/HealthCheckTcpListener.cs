@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,10 +11,9 @@ using TcpHealthChecks.Core;
 
 namespace TcpHealthChecks.Listeners
 {
-    // TODO: mikes (2019-03-09) - Instead of checking on a timer, maybe do it only when the client attaches.
-    // The timeoutSeconds property of k8s probes might help make this work. We need to kill the port before
-    // the timeout is exceeded. So checks have to be doable within that timeout period. 
-    // That is of course if that is even what the timeoutSeconds property means!
+    /// <summary>
+    /// Base class providing support for TCP-based Health Checks
+    /// </summary>
     public class HealthCheckTcpListener : IHostedService, IDisposable
     {
         private readonly TimeSpan _frequency;
