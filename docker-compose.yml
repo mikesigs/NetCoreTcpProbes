@@ -2,7 +2,7 @@ version: '3.4'
 
 services:
   simpleexamplewithdefaults:
-    image: ${DOCKER_REGISTRY-}simpleexamplewithdefaultscustomhealthchecksexample
+    image: ${DOCKER_REGISTRY-}mikesigs/simpleexamplewithdefaults
     ports: 
     - "13000:13000"
     - "13001:13001"
@@ -11,7 +11,7 @@ services:
       dockerfile: samples/SimpleExampleWithDefaults/Dockerfile
 
   customhealthchecksexample:
-    image: ${DOCKER_REGISTRY-}customhealthchecksexample
+    image: ${DOCKER_REGISTRY-}mikesigs/customhealthchecksexample
     ports: 
     - "13002:13002"
     - "13003:13003"
