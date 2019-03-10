@@ -10,8 +10,7 @@ namespace CustomHealthChecksExample
         static ReadyFileReadinessCheck()
         {
             // Creates the 'ready' file 10 seconds after app start
-            var readyTask = Task
-                .Delay(TimeSpan.FromSeconds(10))
+            Task.Delay(TimeSpan.FromSeconds(10))
                 .ContinueWith(_ => File.Create("ready"));
         }
 

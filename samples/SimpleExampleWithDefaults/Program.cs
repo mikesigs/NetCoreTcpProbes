@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using TcpHealthChecks.Core;
 using TcpHealthChecks.Extensions;
 
 namespace SimpleExampleWithDefaults
@@ -21,10 +19,7 @@ namespace SimpleExampleWithDefaults
                         .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                         .AddEnvironmentVariables();
                 })
-                .ConfigureServices((context, services) =>
-                {
-                    services.AddTcpHealthChecks();
-                })
+                .ConfigureServices((context, services) => { services.AddTcpHealthChecks(); })
                 .ConfigureLogging((context, logging) =>
                 {
                     logging
