@@ -11,8 +11,8 @@ namespace TcpHealthChecks.Listeners
         public ReadinessTcpListener(IConfiguration config, ILogger<ReadinessTcpListener> logger, IServiceScopeFactory serviceScopeFactory)
             : base(
                 HealthCheckKind.Readiness, 
-                config.GetValue<int?>("TcpHealthChecks:Readiness:Port") ?? 13001,
-                config.GetValue<TimeSpan?>("TcpHealthChecks:Readiness:Frequency") ?? TimeSpan.FromSeconds(5), 
+                config.GetValue<int>("TcpHealthChecks:Readiness:Port"),
+                config.GetValue<TimeSpan?>("TcpHealthChecks:Readiness:Frequency") ?? DefaultFrequency, 
                 logger,
                 serviceScopeFactory) {}
     }
