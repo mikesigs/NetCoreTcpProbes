@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using System;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using TcpHealthChecks.Core;
@@ -11,7 +12,7 @@ namespace TcpHealthChecks.Listeners
             : base(
                 HealthCheckKind.Liveness, 
                 config.GetValue<int?>("HealthChecks:Liveness:Port") ?? 13000, 
-                config.GetValue<int?>("HealthChecks:Liveness:Frequency") ?? 5,
+                config.GetValue<TimeSpan?>("HealthChecks:Liveness:Frequency") ?? TimeSpan.FromSeconds(5),
                 logger,
                 serviceScopeFactory) {}
     }

@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,17 +16,17 @@ namespace TcpHealthChecks.Listeners
     // The timeoutSeconds property of k8s probes might help make this work. We need to kill the port before
     // the timeout is exceeded. So checks have to be doable within that timeout period. 
     // That is of course if that is even what the timeoutSeconds property means!
-    public abstract class HealthCheckTcpListener : IHostedService, IDisposable
+    public class HealthCheckTcpListener : IHostedService, IDisposable
     {
-        private readonly int _frequency;
+        private readonly TimeSpan _frequency;
         private readonly HealthCheckKind _kind;
-        private readonly TcpListener _listener;
         private readonly ILogger _logger;
         private readonly int _port;
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private Timer _timer;
+        private readonly TcpListener _listener;
 
-        protected HealthCheckTcpListener(HealthCheckKind kind, int port, int frequency, ILogger logger, IServiceScopeFactory serviceScopeFactory)
+        public HealthCheckTcpListener(HealthCheckKind kind, int port, TimeSpan frequency, ILogger logger, IServiceScopeFactory serviceScopeFactory)
         {
             _kind = kind;
             _port = port;
@@ -35,6 +36,8 @@ namespace TcpHealthChecks.Listeners
             _serviceScopeFactory = serviceScopeFactory;
         }
 
+        public bool IsListening => _listener.Server.IsBound;
+
         public void Dispose()
         {
             _listener.Stop();
@@ -43,7 +46,7 @@ namespace TcpHealthChecks.Listeners
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            _timer = new Timer(DoWork, null, TimeSpan.Zero, TimeSpan.FromSeconds(_frequency));
+            _timer = new Timer(DoWork, null, TimeSpan.Zero, _frequency);
 
             return Task.CompletedTask;
         }
@@ -72,12 +75,18 @@ namespace TcpHealthChecks.Listeners
                 else if (checks.Any(check => !check.IsHealthy()))
                 {
                     _logger.LogDebug("One or more {Kind} checks failed. Ensuring TCP Listener on port {Port} is stopped.", _kind, _port);
-                    _listener.Stop();
+                    if (IsListening)
+                    {
+                        _listener.Stop();
+                    }
                 }
                 else
                 {
                     _logger.LogDebug("All {Kind} checks passed. Ensuring TCP Listener on port {Port} is started.", _kind, _port);
-                    _listener.Start();
+                    if (!IsListening)
+                    {
+                        _listener.Start();
+                    }
                 }
             }
         }
