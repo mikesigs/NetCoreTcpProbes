@@ -1,18 +1,16 @@
-﻿using System;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using TcpHealthChecks.Core;
 
 namespace TcpHealthChecks.Listeners
 {
     public class LivenessTcpListener : HealthCheckTcpListener
     {
-        public LivenessTcpListener(IConfiguration config, ILogger<LivenessTcpListener> logger, IServiceScopeFactory serviceScopeFactory)
+        public LivenessTcpListener(IOptions<TcpHealthCheckSettings> options, ILogger<LivenessTcpListener> logger, IServiceScopeFactory serviceScopeFactory)
             : base(
-                HealthCheckKind.Liveness, 
-                config.GetValue<int?>("HealthChecks:Liveness:Port") ?? 13000, 
-                config.GetValue<TimeSpan?>("HealthChecks:Liveness:Frequency") ?? TimeSpan.FromSeconds(5),
+                HealthCheckKind.Liveness,
+                options.Value.Liveness,
                 logger,
                 serviceScopeFactory) {}
     }

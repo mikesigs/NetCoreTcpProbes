@@ -25,13 +25,14 @@ namespace TcpHealthChecks.Listeners
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private Timer _timer;
         private readonly TcpListener _listener;
+        protected static readonly TimeSpan DefaultFrequency = TimeSpan.FromSeconds(5);
 
-        public HealthCheckTcpListener(HealthCheckKind kind, int port, TimeSpan frequency, ILogger logger, IServiceScopeFactory serviceScopeFactory)
+        public HealthCheckTcpListener(HealthCheckKind kind, TcpHealthCheckSettings.HealthCheckSettings settings, ILogger logger, IServiceScopeFactory serviceScopeFactory)
         {
             _kind = kind;
-            _port = port;
+            _port = settings.Port;
             _listener = new TcpListener(IPAddress.Any, _port);
-            _frequency = frequency;
+            _frequency = settings.Frequency ?? DefaultFrequency;
             _logger = logger;
             _serviceScopeFactory = serviceScopeFactory;
         }

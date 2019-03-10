@@ -17,8 +17,17 @@ namespace TcpHealthChecks.Tests
     {
         private const HealthCheckKind ExpectedKind = HealthCheckKind.Liveness;
         private const HealthCheckKind UnexpectedKind = HealthCheckKind.Readiness;
-        private static readonly TimeSpan Frequency = TimeSpan.FromSeconds(1);
-        private static readonly IPAddress IpAddress = IPAddress.Parse("127.0.0.1");
+
+        private static readonly TcpHealthCheckSettings.HealthCheckSettings Settings =
+            new TcpHealthCheckSettings.HealthCheckSettings
+            {
+                Frequency = TimeSpan.FromSeconds(1),
+
+                // Port 0 causes the TCP listener to use the next available port when the listener starts.
+                // The tests must ignore the Range annotation to support test parallelization. 
+                Port = 0 
+            };
+
         private readonly Mock<IServiceProvider> _mockServiceProvider;
 
         public HealthCheckTcpListener_Should()
@@ -37,13 +46,48 @@ namespace TcpHealthChecks.Tests
 
             Sut = new HealthCheckTcpListener(
                 ExpectedKind,
-                0, // Port 0 will cause listener to assign a port when the listener starts
-                Frequency,
+                Settings,
                 new Mock<ILogger>().Object,
                 mockServiceScopeFactory.Object);
         }
 
         public HealthCheckTcpListener Sut { get; }
+
+        [Fact]
+        public async Task Initially_listen_but_stop_when_status_switches_to_unhealthy()
+        {
+            // Arrange
+            var isHealthy = true;
+            // ReSharper disable once AccessToModifiedClosure
+            RegisterHealthChecks(new TestHealthCheck(ExpectedKind, () => isHealthy));
+
+            // Act
+            await StartListener();
+
+            // Assert
+            Sut.IsListening.ShouldBeTrue();
+            isHealthy = false;
+            await Task.Delay(Settings.Frequency.GetValueOrDefault());
+            Sut.IsListening.ShouldBeFalse();
+        }
+
+        [Fact]
+        public async Task Initially_not_listen_but_start_when_status_switches_to_healthy()
+        {
+            // Arrange
+            var isHealthy = false;
+            // ReSharper disable once AccessToModifiedClosure
+            RegisterHealthChecks(new TestHealthCheck(ExpectedKind, () => isHealthy));
+
+            // Act
+            await StartListener();
+
+            // Assert
+            Sut.IsListening.ShouldBeFalse();
+            isHealthy = true;
+            await Task.Delay(Settings.Frequency.GetValueOrDefault());
+            Sut.IsListening.ShouldBeTrue();
+        }
 
         [Fact]
         public async Task Listen_when_all_registered_health_checks_of_expected_kind_return_true()
@@ -72,7 +116,7 @@ namespace TcpHealthChecks.Tests
             // Assert
             Sut.IsListening.ShouldBeFalse();
         }
-        
+
         [Fact]
         public async Task Not_listen_when_no_registered_health_checks()
         {
@@ -97,42 +141,6 @@ namespace TcpHealthChecks.Tests
 
             // Assert
             Sut.IsListening.ShouldBeFalse();
-        }
-
-        [Fact]
-        public async Task Initially_listen_but_stop_when_status_switches_to_unhealthy()
-        {
-            // Arrange
-            var isHealthy = true;
-            // ReSharper disable once AccessToModifiedClosure
-            RegisterHealthChecks(new TestHealthCheck(ExpectedKind, () => isHealthy));
-
-            // Act
-            await StartListener();
-
-            // Assert
-            Sut.IsListening.ShouldBeTrue();
-            isHealthy = false;
-            await Task.Delay(Frequency);
-            Sut.IsListening.ShouldBeFalse();
-        }
-
-        [Fact]
-        public async Task Initially_not_listen_but_start_when_status_switches_to_healthy()
-        {
-            // Arrange
-            var isHealthy = false;
-            // ReSharper disable once AccessToModifiedClosure
-            RegisterHealthChecks(new TestHealthCheck(ExpectedKind, () => isHealthy));
-
-            // Act
-            await StartListener();
-
-            // Assert
-            Sut.IsListening.ShouldBeFalse();
-            isHealthy = true;
-            await Task.Delay(Frequency);
-            Sut.IsListening.ShouldBeTrue();
         }
 
         private void RegisterHealthChecks(params IHealthCheck[] healthChecks)
