@@ -1,0 +1,24 @@
+# Build .NET Core project using Azure Pipelines
+# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core?view=vsts
+
+pool:
+  vmImage: 'Ubuntu 16.04'
+  
+variables:
+  buildConfiguration: 'Release'
+  solution: ./TcpHealthChecks.sln
+
+steps:
+- script: |
+    dotnet build $(solution) --configuration $(buildConfiguration)
+    dotnet test $(solution) --configuration $(buildConfiguration) --logger trx
+    dotnet publish $(solution) --configuration $(buildConfiguration) --output $BUILD_ARTIFACTSTAGINGDIRECTORY
+  failOnStderr: true
+
+- task: PublishTestResults@2
+  condition: succeededOrFailed()
+  inputs:
+    testRunner: VSTest
+    testResultsFiles: '**/*.trx'
+
+- task: PublishBuildArtifacts@1
