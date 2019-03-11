@@ -3,12 +3,21 @@
 
 pool:
   vmImage: 'Ubuntu 16.04'
-  
+
+trigger:
+- master
+- ftr/*
+
 variables:
   buildConfiguration: 'Release'
   solution: ./TcpHealthChecks.sln
 
 steps:
+- task: GitVersion@1
+  displayName: GitVersion
+  inputs:
+    BuildNamePrefix: 'TcpHealthChecksCI-'
+
 - script: |
     dotnet build $(solution) --configuration $(buildConfiguration)
     dotnet test $(solution) --configuration $(buildConfiguration) --logger trx
